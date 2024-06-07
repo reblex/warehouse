@@ -1,0 +1,31 @@
+services:
+    article-service:
+        build:
+            context: .
+            dockerfile: internal/article-service/Dockerfile
+        ports:
+            - "8001:8000"
+        networks:
+            - api
+
+    product-service:
+        build:
+            context: .
+            dockerfile: internal/product-service/Dockerfile
+        ports:
+            - "8002:8000"
+        networks:
+            - api
+
+    order-service:
+        build:
+            context: .
+            dockerfile: internal/order-service/Dockerfile
+        ports:
+            - "8003:8000"
+        networks:
+            - api
+
+networks:
+    api:
+        driver: bridge
