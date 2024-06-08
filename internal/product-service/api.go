@@ -87,7 +87,7 @@ func (s *Server) reserve(w http.ResponseWriter, r *http.Request) {
 		}
 
 		for _, article := range product.Articles {
-			articleReservations[article.Id] += article.Amount
+			articleReservations[article.Id] += article.Amount * order.Amount
 		}
 	}
 
