@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -26,6 +27,7 @@ func (s *Server) Start() {
 	mux.HandleFunc("POST /api/articles", s.storeArticles)
 	mux.HandleFunc("GET /api/articles", s.getAllArticles)
 	mux.HandleFunc("POST /api/articles/reserve", s.reserveArticles)
+	mux.HandleFunc("POST /api/articles/availability", s.calculateAvailability)
 
 	http.ListenAndServe(":8000", mux)
 }
@@ -82,4 +84,27 @@ func (s *Server) reserveArticles(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write([]byte("articles reserved successfully"))
+}
+
+func (s *Server) calculateAvailability(w http.ResponseWriter, r *http.Request) {
+	var dto ReservationsDto
+	err := json.NewDecoder(r.Body).Decode(&dto)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	resData := AvailabilityDto{
+		Availability: s.storer.CalculateAvailability(dto.Reservations),
+	}
+
+	fmt.Println("Calculated availability", resData)
+
+	json, err := json.Marshal(resData)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(json)
 }

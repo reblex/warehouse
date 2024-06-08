@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"slices"
 	"sync"
 )
 
@@ -10,6 +11,7 @@ type Storer interface {
 	Store([]Article) error // Add sum of count to keys
 	GetAll() ([]Article, error)
 	Reserve([]Reservation) error
+	CalculateAvailability(reservations []Reservation) int
 }
 
 type MemoryStorer struct {
@@ -87,4 +89,19 @@ func (ms *MemoryStorer) Reserve(reservations []Reservation) error {
 	}
 
 	return nil
+}
+
+func (ms *MemoryStorer) CalculateAvailability(reservations []Reservation) int {
+	articleAvailability := make([]int, 0, len(reservations))
+	for _, r := range reservations {
+		article, ok := ms.storage[r.Id]
+		if !ok {
+			return 0
+		}
+
+		availability := article.Stock / r.Count
+		articleAvailability = append(articleAvailability, availability)
+	}
+
+	return slices.Min(articleAvailability)
 }

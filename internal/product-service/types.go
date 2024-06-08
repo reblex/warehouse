@@ -10,9 +10,10 @@ type Article struct {
 type ProductName string
 
 type Product struct {
-	Name     ProductName `json:"name"`
-	Articles []Article   `json:"contain_articles"`
-	Price    float32     `json:"price"`
+	Name         ProductName `json:"name"`
+	Articles     []Article   `json:"contain_articles"`
+	Price        float32     `json:"price"`
+	Availability int         `json:"availability"`
 }
 
 type ProductsDto struct {
@@ -35,4 +36,8 @@ type ArticleReservation struct {
 
 type ArticleReservationsDto struct {
 	Reservations []ArticleReservation `json:"reservations"`
+}
+
+type AvailabilityDto struct {
+	Availability int `json:"availability"`
 }

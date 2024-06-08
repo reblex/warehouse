@@ -19,3 +19,12 @@ type ArticlesDto struct {
 type ReservationsDto struct {
 	Reservations []Reservation `json:"reservations"`
 }
+
+type AvailabilityDto struct {
+	Availability int `json:"availability"`
+}
+
+// type ProductArticle struct {
+// 	Id     ArticleId `json:"art_id"`
+// 	Amount int       `json:"amount_of,string"`
+// }

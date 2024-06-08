@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sync"
 )
 
 type Server struct {
@@ -54,6 +55,12 @@ func (s *Server) getAll(w http.ResponseWriter, r *http.Request) {
 	products, err := s.storer.GetAll()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	products, err = applyAvailability(products)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("could not apply availability: %s", err.Error()), http.StatusInternalServerError)
 		return
 	}
 
@@ -137,4 +144,70 @@ func reserveArticles(articles map[ArticleId]int) error {
 	}
 
 	return nil
+}
+
+func applyAvailability(products []Product) ([]Product, error) {
+	var wg sync.WaitGroup
+	updatedProducts := make([]Product, len(products))
+	for i, p := range products {
+		wg.Add(1)
+		go func(idx int, product Product) {
+			defer wg.Done()
+			availability, _ := getAvailability(articlesToReservation(product.Articles))
+			updatedProducts[idx] = Product{
+				Name:         product.Name,
+				Articles:     product.Articles,
+				Price:        product.Price,
+				Availability: availability,
+			}
+		}(i, p)
+	}
+	wg.Wait()
+
+	return updatedProducts, nil
+}
+
+func getAvailability(reservations ArticleReservationsDto) (int, error) {
+	jsonData, err := json.Marshal(reservations)
+	if err != nil {
+		return 0, err
+	}
+
+	url := "http://article-service:8000/api/articles/availability" // TODO: ENV
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return 0, err
+	}
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return 0, err
+	}
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		return 0, fmt.Errorf(string(body))
+	}
+
+	var result AvailabilityDto
+	if err := json.Unmarshal(body, &result); err != nil {
+		return 0, fmt.Errorf("failed to unmarshal json:%s", err.Error())
+	}
+
+	return result.Availability, nil
+}
+
+func articlesToReservation(articles []Article) ArticleReservationsDto {
+	reservations := make([]ArticleReservation, 0, len(articles))
+	for _, a := range articles {
+		reservations = append(reservations, ArticleReservation{
+			Id:    a.Id,
+			Count: a.Amount,
+		})
+	}
+	return ArticleReservationsDto{
+		Reservations: reservations,
+	}
 }
