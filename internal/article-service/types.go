@@ -9,9 +9,13 @@ type Article struct {
 
 type Reservation struct {
 	Id    ArticleId `json:"id"`
-	Count int       `json:"count"`
+	Count int       `json:"count,string"`
 }
 
 type ArticlesDto struct {
 	Articles []Article `json:"articles"`
+}
+
+type ReservationsDto struct {
+	Reservations []Reservation `json:"reservations"`
 }

@@ -25,6 +25,7 @@ func (s *Server) Start() {
 	})
 	mux.HandleFunc("POST /api/articles", s.storeArticles)
 	mux.HandleFunc("GET /api/articles", s.getAllArticles)
+	mux.HandleFunc("POST /api/articles/reserve", s.reserveArticles)
 
 	http.ListenAndServe(":8000", mux)
 }
@@ -64,4 +65,21 @@ func (s *Server) getAllArticles(w http.ResponseWriter, _ *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(json)
+}
+
+func (s *Server) reserveArticles(w http.ResponseWriter, r *http.Request) {
+	var dto ReservationsDto
+	err := json.NewDecoder(r.Body).Decode(&dto)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = s.storer.Reserve(dto.Reservations)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Write([]byte("articles reserved successfully"))
 }

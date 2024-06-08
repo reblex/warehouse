@@ -2,13 +2,14 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 )
 
 type Storer interface {
 	Store([]Article) error // Add sum of count to keys
 	GetAll() ([]Article, error)
-	// Reserve([]Reservation) error
+	Reserve([]Reservation) error
 }
 
 type MemoryStorer struct {
@@ -56,4 +57,34 @@ func (ms *MemoryStorer) GetAll() ([]Article, error) {
 	}
 
 	return articles, nil
+}
+
+func (ms *MemoryStorer) Reserve(reservations []Reservation) error {
+	ms.mu.Lock()
+	defer ms.mu.Unlock()
+
+	for _, r := range reservations {
+		article, ok := ms.storage[r.Id]
+		if !ok {
+			return fmt.Errorf("no article with id %s present in warehouse", r.Id)
+		}
+
+		if article.Stock < r.Count {
+			return fmt.Errorf("stock %d does not meet reservation %d of article %s", article.Stock, r.Count, article.Name)
+		}
+	}
+
+	// TODO: Save reservations {Id, []Reservation} and return Id
+	// TODO: If reservation is cancelled, return stock
+	// TODO: Use orderId as Id??
+	for _, r := range reservations {
+		article, ok := ms.storage[r.Id]
+		if !ok {
+			return fmt.Errorf("no article with id %s present in warehouse", r.Id) // TODO: reduce duplication from above loop
+		}
+		article.Stock -= r.Count
+		ms.storage[r.Id] = article
+	}
+
+	return nil
 }
