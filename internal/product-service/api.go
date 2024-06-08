@@ -93,11 +93,11 @@ func (s *Server) reserve(w http.ResponseWriter, r *http.Request) {
 
 	err = reserveArticles(articleReservations)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("could not reserve order: %s", err.Error()), http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf("could not reserve products: %s", err.Error()), http.StatusBadRequest)
 		return
 	}
 
-	w.Write([]byte("order reserved"))
+	w.Write([]byte("products reserved"))
 }
 
 func reserveArticles(articles map[ArticleId]int) error {
