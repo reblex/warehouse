@@ -1,13 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"sync"
 )
 
 type Storer interface {
 	Upsert([]Product) error // Add or update by name
 	GetAll() ([]Product, error)
-	// Order([]Order) error
+	GetByName(ProductName) (Product, error)
 }
 
 type MemoryStorer struct {
@@ -52,4 +53,16 @@ func (ms *MemoryStorer) GetAll() ([]Product, error) {
 	}
 
 	return products, nil
+}
+
+func (ms *MemoryStorer) GetByName(name ProductName) (Product, error) {
+	ms.mu.RLock()
+	defer ms.mu.RUnlock()
+
+	product, ok := ms.storage[name]
+	if !ok {
+		return Product{}, fmt.Errorf("no product named %s present", name)
+	}
+
+	return product, nil
 }
