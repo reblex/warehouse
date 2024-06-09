@@ -30,24 +30,6 @@ func (s *Server) Start() {
 }
 
 func (s *Server) order(w http.ResponseWriter, r *http.Request) {
-	// TODO: Should return the products and articles required? Forgot about that, but the check is valid.
-	// TODO If time could return something like this.
-	// {
-	// 	"products": [
-	// 		{
-	// 			"Id": "1",
-	// 			"Name": "Name",
-	// 			"Amount": "3",
-	// 			"Articles": [
-	// 				{
-	// 					"Id": "5",
-	// 					"Name": "Name"
-	// 					"Amount": "15" // 5 per product = 15 total
-	// 				}
-	// 			]
-	// 		}
-	// 	]
-	// }
 	var dto OrderDto
 	err := json.NewDecoder(r.Body).Decode(&dto)
 	if err != nil {
@@ -70,7 +52,7 @@ func reserveProducts(order OrderDto) error {
 		return err
 	}
 
-	url := "http://product-service:8000/api/products/reserve" // TODO: ENV
+	url := "http://product-service:8000/api/products/reserve"
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(json))
 	if err != nil {
 		return err

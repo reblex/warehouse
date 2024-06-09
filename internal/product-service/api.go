@@ -125,7 +125,7 @@ func reserveArticles(articles map[ArticleId]int) error {
 		return err
 	}
 
-	url := "http://article-service:8000/api/articles/reserve" // TODO: ENV
+	url := "http://article-service:8000/api/articles/reserve"
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(json))
 	if err != nil {
 		return err
@@ -173,7 +173,7 @@ func getAvailability(reservations ArticleReservationsDto) (int, error) {
 		return 0, err
 	}
 
-	url := "http://article-service:8000/api/articles/availability" // TODO: ENV
+	url := "http://article-service:8000/api/articles/availability"
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return 0, err

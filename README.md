@@ -1,6 +1,6 @@
 # Warehouse Monorepo
 
-Blablabla
+Warehousing and ordering solution for producs and related articles.
 
 ## What I have done
 
@@ -14,22 +14,28 @@ I created storer interfaces to allow mocking and easier switching of DBs. I chos
 
 ### CLI
 
-I built the warehousing solution as a ... of APIs. However from my understanding, a functional requirement was to be able to upload articles and products directly from a file, and I therefore made CLI commands available for that. There is also a handy `ping` command to help validate system status.
+I built the warehousing solution as a set of APIs. However from my understanding, a functional requirement was to be able to upload articles and products directly from a file, and I therefore made CLI commands available for that. There is also a handy `ping` command to help validate system status.
 
 ### Containerization
 
-I chose to deploy my microservices using docker. A simpler approach would have been to build and run locally using ex. a Makefile. However, as the spec said to "assume that you will have ownership of the delivery and operations of your product", I wanted to display my knowledge of deploying and running real systems using Docker.
+I chose to deploy my microservices using docker. A simpler approach would have been to build and run locally using ex. a Makefile. However, as the spec said to "assume that you will have ownership of the delivery and operations of your product", I wanted to display my knowledge of deploying and running systems using Docker.
+
+### Patching over inserting stock
+
+I chose to implement the upload of articles as a stock "refill", rather than directly setting the new stock, which made more sense to me. This means that new stock will be the sum of current and incomming stock. I did this also as a challenge to allow concurrent reads and writes. I also made adding products an "upsert" endpoint to allow creating and modifying products within the same endpoint.
 
 ## What I have not done
 
 -   Any type of API authentication or authorization.
--   Any type of API documentation.
--   A complete test suite - For me, in any real product development, tests are a required part of delivery and not optional. However, in the limited timeframe of this assignment I wanted to focus on functionality and architecture.
+-   A complete test suite - For me, in any real product development, tests are a required part of delivery and not optional. However, in the limited timeframe of this assignment I wanted to focus on functionality and architecture. I did however write some basic e2e tests.
+-   SDK for cross service communication - Could have reduced type duplication and request clutter, but I did not prioritize that.
+-   ENVs - request urls and ports are hard coded. A proper implementation would read from env.
 
 ## Requirements
 
 -   Docker
 -   Go
+-   Python3 (for E2E)
 
 ## Instructions
 
@@ -39,6 +45,12 @@ _All instructions are based on standing in the root of the repo._
 
 ```
 docker compose up
+```
+
+### E2E
+
+```
+python3 e2e.py
 ```
 
 ### CLI
@@ -163,7 +175,7 @@ curl --location 'localhost:8003/api/orders' \
 --data '{
     "orders": [
         {
-            "product_name": "Dining Table",
+            "product_name": "Dining Chair",
             "amount": 1
         }
     ]

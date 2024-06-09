@@ -23,8 +23,3 @@ type ReservationsDto struct {
 type AvailabilityDto struct {
 	Availability int `json:"availability"`
 }
-
-// type ProductArticle struct {
-// 	Id     ArticleId `json:"art_id"`
-// 	Amount int       `json:"amount_of,string"`
-// }

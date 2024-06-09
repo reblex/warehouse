@@ -76,13 +76,10 @@ func (ms *MemoryStorer) Reserve(reservations []Reservation) error {
 		}
 	}
 
-	// TODO: Save reservations {Id, []Reservation} and return Id
-	// TODO: If reservation is cancelled, return stock
-	// TODO: Use orderId as Id??
 	for _, r := range reservations {
 		article, ok := ms.storage[r.Id]
 		if !ok {
-			return fmt.Errorf("no article with id %s present in warehouse", r.Id) // TODO: reduce duplication from above loop
+			return fmt.Errorf("no article with id %s present in warehouse", r.Id)
 		}
 		article.Stock -= r.Count
 		ms.storage[r.Id] = article
