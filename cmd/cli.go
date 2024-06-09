@@ -15,9 +15,20 @@ func main() {
 	}
 
 	cmd := args[0]
+	funcArgs := make([]string, 0)
+	if len(args) > 1 {
+		funcArgs = append(funcArgs, args[1:]...)
+	}
+
 	switch cmd {
 	case "ping":
 		pingCmd()
+	case "articles":
+		articleCmd(funcArgs[0])
+	case "products":
+		productCmd(funcArgs[0])
+	default:
+		printCLIHelp()
 	}
 }
 
@@ -32,6 +43,14 @@ func pingCmd() {
 	pingService("http://localhost:8001/api/ping")
 	pingService("http://localhost:8002/api/ping")
 	pingService("http://localhost:8003/api/ping")
+}
+
+func articleCmd(filePath string) {
+	post("http://localhost:8001/api/articles", filePath)
+}
+
+func productCmd(filePath string) {
+	post("http://localhost:8002/api/products", filePath)
 }
 
 func pingService(url string) {
@@ -52,4 +71,29 @@ func pingService(url string) {
 		bodyString := string(bodyBytes)
 		fmt.Printf("%s -> %s\n", url, bodyString)
 	}
+}
+
+func post(url, filePath string) {
+	f, err := os.Open(filePath)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	defer f.Close()
+
+	request, err := http.NewRequest("POST", url, f)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	request.Header.Set("Content-Type", "application/json; charset=UTF-8")
+
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	defer response.Body.Close()
+
+	fmt.Println(response.Status)
 }

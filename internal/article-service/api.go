@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
@@ -97,8 +96,6 @@ func (s *Server) calculateAvailability(w http.ResponseWriter, r *http.Request) {
 	resData := AvailabilityDto{
 		Availability: s.storer.CalculateAvailability(dto.Reservations),
 	}
-
-	fmt.Println("Calculated availability", resData)
 
 	json, err := json.Marshal(resData)
 	if err != nil {
