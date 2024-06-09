@@ -34,7 +34,7 @@ I chose to implement the upload of articles as a stock "refill", rather than dir
 ## Requirements
 
 -   Docker
--   Go
+-   Go 1.22 or above
 -   Python3 (for E2E)
 
 ## Instructions
